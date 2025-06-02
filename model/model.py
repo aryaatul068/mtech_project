@@ -177,6 +177,20 @@ class Embed2GraphByProduct(nn.Module):
 
         return m
 
+class Embed2GraphByAttention(nn.Module):
+    def __init__(self, input_dim, roi_num=264):
+        super().__init__()
+        self.query_proj = nn.Linear(input_dim, input_dim)
+        self.key_proj = nn.Linear(input_dim, input_dim)
+
+    def forward(self, x):
+        # x: [B, N, D]
+        Q = self.query_proj(x)
+        K = self.key_proj(x)
+        attention = torch.matmul(Q, K.transpose(-2, -1)) / (x.shape[-1] ** 0.5)
+        attention = F.softmax(attention, dim=-1)
+        return attention.unsqueeze(-1)
+
 
 class Embed2GraphByLinear(nn.Module):
 
@@ -303,6 +317,9 @@ class FBNETGEN(nn.Module):
                 model_config['embedding_size'], roi_num=roi_num)
         elif self.graph_generation == "product":
             self.emb2graph = Embed2GraphByProduct(
+                model_config['embedding_size'], roi_num=roi_num)
+        elif self.graph_generation == "attention":
+            self.emb2graph = Embed2GraphByAttention(
                 model_config['embedding_size'], roi_num=roi_num)
 
         self.predictor = GNNPredictor(node_feature_dim, roi_num=roi_num)
