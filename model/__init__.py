@@ -1,2 +1,2 @@
 from .GSL import BrainGSLModel, TSConstruction
-from .model import FBNETGEN, GNNPredictor, SeqenceModel, BrainNetCNN
+from .model import FBNETGEN, GNNPredictor, SeqenceModel, BrainNetCNN, FBNETGEN_MultiView
